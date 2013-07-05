@@ -14,7 +14,7 @@ has screen => ( is => 'lazy', handles => [qw/ grid /] );
 has num_particles => (
     is => 'ro',
     required => 1,
-    default => sub { 500 },
+    default => sub { 10000 },
 );
 
 has screen_args => ( 
@@ -81,7 +81,7 @@ sub draw_grid {
     $screen->at( 0, 0 );
     for ( 0 .. $screen->rows - 1 ) {
         $screen->at( $_, 0 );
-        print join "" => map { $_ ? $_->char : "-" } @{ $grid->[$_] };
+        print join "" => map { $_ ? $_->char : " " } @{ $grid->[$_] };
     }
 }
 sub move_particles {
@@ -114,6 +114,6 @@ sub draw {
     $self->move_particles;
 #    $self->screen->reset_grid;
     $self->draw_grid;
-    Time::HiRes::sleep .05;
+    Time::HiRes::sleep .02;
 }
 1;
