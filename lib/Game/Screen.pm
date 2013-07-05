@@ -3,15 +3,25 @@ use strict;
 use warnings FATAL => 'all';
 require Term::Screen;
 use Moo;
+use Data::Dumper::Concise;
 
 has _screen => (
-    is => 'lazy',
-    handles => { rows => 'rows', cols => 'cols', 'at' => 'at', key_pressed => 'key_pressed' }
-);
+    is      => 'lazy',
+    handles => {
+        'at'        => 'at',
+        key_pressed => 'key_pressed',
+        clrscr => 'clrscr',
+    } );
 
 has grid => ( 
     is => 'lazy',
 );
+
+has rows => ( is => 'lazy' );
+has cols => ( is => 'lazy' );
+
+sub _build_rows { shift->_screen->rows }
+sub _build_cols { shift->_screen->cols }
 
 sub reset_grid {
     my $self = shift;
@@ -21,7 +31,8 @@ sub reset_grid {
 }
 sub _build_grid {
     my $self = shift;
-    [ map { [ ('-') x $self->cols ] } ( 1 .. $self->rows ) ];
+    my $ret = [ map { [ (undef) x $self->cols ] } ( 1 .. $self->rows ) ];
+    return $ret;
 }
 
 sub _build__screen {
