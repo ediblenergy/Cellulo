@@ -12,11 +12,11 @@ use constant {
 };
 has x => ( is => 'rw', required => 1 );
 has y => ( is => 'rw', required => 1 );
-has type => ( is => 'ro', required => 1 );
+has type => ( is => 'rw', required => 1 );
 
 has xdir => ( is => 'lazy' );
 has ydir => ( is => 'lazy' );
-has char => ( is => 'lazy' );
+has char => ( is => 'rw', lazy => 1, builder => 1 );
 
 has rows => ( is => 'ro', required => 1);
 has cols => ( is => 'ro', required => 1);
@@ -24,20 +24,27 @@ has cols => ( is => 'ro', required => 1);
 sub _build_xdir {
     my $self = shift;
     for( $self->type ) {
-    return -1 if $_ eq R;
-    return 1 if $_ eq B;
+        return -1 if $_ eq R;
+        return 1 if $_ eq B;
+        return 0;
     }
 }
 
 sub _build_ydir {
     my $self = shift;
-    return 0;
+    for( $self->type ) {
+        return -1 if $_ eq G;
+        return 1 if $_ eq Y;
+        return 0;
+    }
 }
 
 sub _build_char {
     my $self = shift;
-    return color('blue') .  'o' . color('reset') if $self->type eq R;
-    return color('red') . 'x' . color('reset') if $self->type eq B;
+    return color('blue') . 'o' . color('reset')   if $self->type eq B;
+    return color('red') . 'W' . color('reset')    if $self->type eq R;
+    return color('green') . '+' . color('reset')  if $self->type eq G;
+    return color('yellow') . 'V' . color('reset') if $self->type eq Y;
 }
 sub xpos {
     my( $self, $xx ) = @_;

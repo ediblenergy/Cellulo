@@ -61,7 +61,7 @@ sub init {
             cols => $cols,
             x    => $randx,
             y    => $randy,
-            type => int( rand(2) + 1 ),
+            type => int( rand(4) + 1 ),
         );
         push( @particles, $grid->[$randy][$randx] );
     }
@@ -85,25 +85,27 @@ sub draw_grid {
     }
 }
 sub move_particles {
-    my $self = shift;
-    my $grid = $self->screen->grid;
+    my $self  = shift;
+    my $grid  = $self->screen->grid;
     my $_move = sub {
-        my ($p,$wantx,$wanty,$grid) = @_;
-            $grid->[$wanty][$wantx] =  $p;
-            $grid->[ $p->y ][ $p->x ] = undef;
-            $p->x($wantx);
-            $p->y($wanty);
+        my ( $p, $wantx, $wanty, $grid ) = @_;
+        $grid->[$wanty][$wantx] = $p;
+        $grid->[ $p->y ][ $p->x ] = undef;
+        $p->x($wantx);
+        $p->y($wanty);
     };
     for ( @{ $self->particles } ) {
         my $wantx = $_->xpos( $_->x + $_->xdir );
         my $wanty = $_->ypos( $_->y + $_->ydir );
         unless ( $grid->[$wanty][$wantx] ) {
             $_move->( $_, $wantx, $wanty, $grid );
-        } else {
+        }
+        else {
             $wantx = $_->xpos( $_->x + $_->avoidx );
             $wanty = $_->ypos( $_->y + $_->avoidy );
-            $_move->( $_, $wantx, $wanty, $grid )
-              unless ( $grid->[$wanty][$wantx] );
+            unless ( $grid->[$wanty][$wantx] ) {
+                $_move->( $_, $wantx, $wanty, $grid );
+            }
         }
     }
 }
@@ -114,6 +116,6 @@ sub draw {
     $self->move_particles;
 #    $self->screen->reset_grid;
     $self->draw_grid;
-    Time::HiRes::sleep .02;
+    Time::HiRes::sleep .08;
 }
 1;
