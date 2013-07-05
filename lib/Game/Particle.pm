@@ -2,6 +2,7 @@ package Game::Particle;
 use strict;
 use warnings FATAL => 'all';
 use Moo;
+use Term::ANSIColor;
 
 use constant {
     R => 1,
@@ -35,8 +36,8 @@ sub _build_ydir {
 
 sub _build_char {
     my $self = shift;
-    return 'o' if $self->type eq R;
-    return 'x' if $self->type eq B;
+    return color('blue') .  'o' . color('reset') if $self->type eq R;
+    return color('red') . 'x' . color('reset') if $self->type eq B;
 }
 sub xpos {
     my( $self, $xx ) = @_;
@@ -57,6 +58,16 @@ sub ypos {
     }
     return $yy;
 }
+
+sub avoidx {
+    int( rand(3) ) - 1;
+}
+
+sub avoidy {
+    int( rand(3) ) - 1;
+}
+
+
 sub move {
     my $self = shift;
     my $wantx = $self->xpos( $self->x + $self->xdir );

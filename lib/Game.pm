@@ -14,7 +14,7 @@ has screen => ( is => 'lazy', handles => [qw/ grid /] );
 has num_particles => (
     is => 'ro',
     required => 1,
-    default => sub { 200 },
+    default => sub { 500 },
 );
 
 has screen_args => ( 
@@ -51,21 +51,22 @@ sub init {
     my $cols = $self->screen->cols;
     $self->screen->clrscr;
     my $grid = $self->screen->grid;
-    my $particles = [
-        map {
-            my $randy = $self->randy;
-            my $randx = $self->randx;
-            $grid->[ $randy ][ $randx ] = 
-            Game::Particle->new(
-                rows => $rows,
-                cols => $cols,
-                x    => $randx,
-                y    => $randy,
-                type => int( rand(2) + 1 ),
-              )
-        } ( 1 .. $self->num_particles ) ];
+    my @particles;
+    for ( 1 .. $self->num_particles ) {
+        my $randy = $self->randy;
+        my $randx = $self->randx;
+        next if $grid->[$randy][$randx];
+        $grid->[$randy][$randx] =  Game::Particle->new(
+            rows => $rows,
+            cols => $cols,
+            x    => $randx,
+            y    => $randy,
+            type => int( rand(2) + 1 ),
+        );
+        push( @particles, $grid->[$randy][$randx] );
+    }
     
-    $self->particles( $particles );
+    $self->particles( \@particles );
 }
 
 sub play {
@@ -86,14 +87,23 @@ sub draw_grid {
 sub move_particles {
     my $self = shift;
     my $grid = $self->screen->grid;
+    my $_move = sub {
+        my ($p,$wantx,$wanty,$grid) = @_;
+            $grid->[$wanty][$wantx] =  $p;
+            $grid->[ $p->y ][ $p->x ] = undef;
+            $p->x($wantx);
+            $p->y($wanty);
+    };
     for ( @{ $self->particles } ) {
         my $wantx = $_->xpos( $_->x + $_->xdir );
         my $wanty = $_->ypos( $_->y + $_->ydir );
         unless ( $grid->[$wanty][$wantx] ) {
-            $grid->[$wanty][$wantx] =  $_;
-            $grid->[ $_->y ][ $_->x ] = undef;
-            $_->x($wantx);
-            $_->y($wanty);
+            $_move->( $_, $wantx, $wanty, $grid );
+        } else {
+            $wantx = $_->xpos( $_->x + $_->avoidx );
+            $wanty = $_->ypos( $_->y + $_->avoidy );
+            $_move->( $_, $wantx, $wanty, $grid )
+              unless ( $grid->[$wanty][$wantx] );
         }
     }
 }
