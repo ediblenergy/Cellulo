@@ -14,9 +14,9 @@ has x => ( is => 'rw', required => 1 );
 has y => ( is => 'rw', required => 1 );
 has type => ( is => 'rw', required => 1 );
 
-has xdir => ( is => 'lazy' );
-has ydir => ( is => 'lazy' );
-has char => ( is => 'rw', lazy => 1, builder => 1 );
+has xdir => ( is => 'lazy', clearer => 1 );
+has ydir => ( is => 'lazy', clearer => 1  );
+has char => ( is => 'lazy', clearer => 1 );
 
 has rows => ( is => 'ro', required => 1);
 has cols => ( is => 'ro', required => 1);
@@ -41,10 +41,10 @@ sub _build_ydir {
 
 sub _build_char {
     my $self = shift;
-    return color('blue') . 'o' . color('reset')   if $self->type eq B;
-    return color('red') . 'W' . color('reset')    if $self->type eq R;
-    return color('green') . '+' . color('reset')  if $self->type eq G;
-    return color('yellow') . 'V' . color('reset') if $self->type eq Y;
+    return color('blue') . '_' . color('reset')   if $self->type eq B;
+    return color('red') . 'x' . color('reset')    if $self->type eq R;
+    return color('green') . '^' . color('reset')  if $self->type eq G;
+    return color('yellow') . 'v' . color('reset') if $self->type eq Y;
 }
 sub xpos {
     my( $self, $xx ) = @_;
@@ -67,10 +67,14 @@ sub ypos {
 }
 
 sub avoidx {
+    my $self = shift;
+    return 0 if $self->xdir;
     int( rand(3) ) - 1;
 }
 
 sub avoidy {
+    my $self = shift;
+    return 0 if $self->ydir;
     int( rand(3) ) - 1;
 }
 

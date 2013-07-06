@@ -84,16 +84,18 @@ sub draw_grid {
         print join "" => map { $_ ? $_->char : " " } @{ $grid->[$_] };
     }
 }
+
+my $_move = sub {
+    my ( $p, $wantx, $wanty, $grid ) = @_;
+    $grid->[$wanty][$wantx] = $p;
+    $grid->[ $p->y ][ $p->x ] = undef;
+    $p->x($wantx);
+    $p->y($wanty);
+};
+
 sub move_particles {
     my $self  = shift;
     my $grid  = $self->screen->grid;
-    my $_move = sub {
-        my ( $p, $wantx, $wanty, $grid ) = @_;
-        $grid->[$wanty][$wantx] = $p;
-        $grid->[ $p->y ][ $p->x ] = undef;
-        $p->x($wantx);
-        $p->y($wanty);
-    };
     for ( @{ $self->particles } ) {
         my $wantx = $_->xpos( $_->x + $_->xdir );
         my $wanty = $_->ypos( $_->y + $_->ydir );
@@ -105,6 +107,12 @@ sub move_particles {
             $wanty = $_->ypos( $_->y + $_->avoidy );
             unless ( $grid->[$wanty][$wantx] ) {
                 $_move->( $_, $wantx, $wanty, $grid );
+            } else {
+#                $_ = $grid->[$wanty][$wantx];
+                $_->type( $grid->[$wanty][$wantx]->type );
+                $_->clear_xdir;
+                $_->clear_ydir;
+                $_->clear_char;
             }
         }
     }
