@@ -32,20 +32,26 @@ sub _build_xdir {
 
 sub _build_ydir {
     my $self = shift;
-    for( $self->type ) {
+    for ( $self->type ) {
         return -1 if $_ eq G;
-        return 1 if $_ eq Y;
+        return 1  if $_ eq Y;
         return 0;
     }
 }
 
+sub _cc {
+    my($color,$str) = @_;
+    colored($str,$color);
+}
+
 sub _build_char {
     my $self = shift;
-    return color('blue') . '_' . color('reset')   if $self->type eq B;
-    return color('red') . 'x' . color('reset')    if $self->type eq R;
-    return color('green') . '^' . color('reset')  if $self->type eq G;
-    return color('yellow') . 'v' . color('reset') if $self->type eq Y;
+    return _cc( 'blue',   'o' ) if $self->type eq B;
+    return _cc( 'red',    'o' ) if $self->type eq R;
+    return _cc( 'green',  'o' ) if $self->type eq G;
+    return _cc( 'yellow', 'o' ) if $self->type eq Y;
 }
+
 sub xpos {
     my( $self, $xx ) = @_;
     if( $xx >= $self->cols ) {

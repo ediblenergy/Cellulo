@@ -7,14 +7,28 @@ use Game::Particle;
 use Data::Dumper::Concise;
 use Try::Tiny;
 
-
 use Moo;
+use MooX::Options;
+
 has screen => ( is => 'lazy', handles => [qw/ grid /] );
 
-has num_particles => (
+option sleep_time => (
     is => 'ro',
+    format => 's',
+    required => 0,
+    doc => 'time to sleep between frames',
+    default => sub { .03 },
+);
+option num_particles => (
+    is => 'ro',
+    format => 'i',
     required => 1,
-    default => sub { 10000 },
+    doc => "number of onscreen particles",
+);
+
+option meld => (
+    is => 'ro',
+    doc => 'particles should turn in to each other when stuck'
 );
 
 has screen_args => ( 
@@ -56,7 +70,7 @@ sub init {
         my $randy = $self->randy;
         my $randx = $self->randx;
         next if $grid->[$randy][$randx];
-        $grid->[$randy][$randx] =  Game::Particle->new(
+        $grid->[$randy][$randx] = Game::Particle->new(
             rows => $rows,
             cols => $cols,
             x    => $randx,
@@ -65,7 +79,6 @@ sub init {
         );
         push( @particles, $grid->[$randy][$randx] );
     }
-    
     $self->particles( \@particles );
 }
 
@@ -107,8 +120,7 @@ sub move_particles {
             $wanty = $_->ypos( $_->y + $_->avoidy );
             unless ( $grid->[$wanty][$wantx] ) {
                 $_move->( $_, $wantx, $wanty, $grid );
-            } else {
-#                $_ = $grid->[$wanty][$wantx];
+            } elsif( $self->meld ) {
                 $_->type( $grid->[$wanty][$wantx]->type );
                 $_->clear_xdir;
                 $_->clear_ydir;
@@ -124,6 +136,6 @@ sub draw {
     $self->move_particles;
 #    $self->screen->reset_grid;
     $self->draw_grid;
-    Time::HiRes::sleep .08;
+    Time::HiRes::sleep $self->sleep_time;
 }
 1;
