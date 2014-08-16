@@ -1,9 +1,10 @@
-package Game::Screen;
+package Games::Cellulo::Game::Screen;
+
 use strict;
 use warnings FATAL => 'all';
-require Term::Screen;
+
 use Moo;
-use Data::Dumper::Concise;
+require Term::Screen;
 
 has _screen => (
     is      => 'lazy',
@@ -13,15 +14,15 @@ has _screen => (
         clrscr => 'clrscr',
     } );
 
-has grid => ( 
+has grid => (
     is => 'lazy',
 );
 
+sub _build_rows { shift->_screen->rows }
+sub _build_cols { shift->_screen->cols }
 has rows => ( is => 'lazy' );
 has cols => ( is => 'lazy' );
 
-sub _build_rows { shift->_screen->rows }
-sub _build_cols { shift->_screen->cols }
 
 sub reset_grid {
     my $self = shift;
@@ -38,6 +39,26 @@ sub _build_grid {
 sub _build__screen {
     my $self = shift;
     Term::Screen->new;
+}
+
+sub xpos {
+    my( $self, $xx ) = @_;
+    if( $xx >= $self->cols ) {
+        $xx -= $self->cols;
+    } elsif ( $xx < 0 ) {
+        $xx += $self->cols;
+    }
+    return $xx;
+}
+
+sub ypos {
+    my( $self, $yy ) = @_;
+    if( $yy >= $self->rows ) {
+        $yy -= $self->rows;
+    } elsif ( $yy < 0 ) {
+        $yy += $self->rows;
+    }
+    return $yy;
 }
 
 1;

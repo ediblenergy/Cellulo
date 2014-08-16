@@ -1,7 +1,7 @@
 use strict;
 use warnings;
-use Game;
+use Games::Cellulo::Game;
 use Test::More;
-ok my $g = Game->new;
+ok my $g = Game->new,'instantiated!';
 $g->play;
 done_testing;
