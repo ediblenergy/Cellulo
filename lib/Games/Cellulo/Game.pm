@@ -1,4 +1,5 @@
 package Games::Cellulo::Game;
+
 use strict;
 use warnings FATAL => 'all';
 use Games::Cellulo::Game::Screen;
@@ -36,6 +37,7 @@ has screen_args => (
 
 has particles => ( 
     is => 'rw',
+    default => sub { [] },
 );
 sub _rand_dir {
     int( rand(3) ) - 1;
