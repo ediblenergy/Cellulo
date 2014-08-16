@@ -9,6 +9,7 @@ use Games::Cellulo::Game::Particle;
 use Moo;
 use MooX::Options;
 
+open( my $fh, ">", "$ENV{HOME}/cellulo.log" ) or die "$@ $!";
 has screen => ( is => 'lazy', handles => [qw/ grid /] );
 
 option sleep_time => (
@@ -30,12 +31,28 @@ option meld => (
     doc => 'particles should turn in to each other when stuck'
 );
 
-has screen_args => ( 
+option clump => (
+    is => 'ro',
+    doc => 'clump instead of avoid',
+);
+
+option behavior => (
+    is => 'ro',
+    format => 'i',
+    default => sub { 3 },
+    doc => "
+        1: go straight, avoid only on collision
+        2: meld, on collision switch to new type
+        3: adopt direction of avoid path ( default )
+    "
+);
+
+has screen_args => (
     is => 'ro',
     default => sub { +{} },
 );
 
-has particles => ( 
+has particles => (
     is => 'rw',
     default => sub { [] },
 );
@@ -66,6 +83,7 @@ sub init {
     $self->screen->clrscr;
     my $grid = $self->screen->grid;
     my @particles;
+    my $clump = $self->clump;
     for ( 1 .. $self->num_particles ) {
         my $randy = $self->randy;
         my $randx = $self->randx;
@@ -76,6 +94,7 @@ sub init {
             x    => $randx,
             y    => $randy,
             type => int( rand(4) + 1 ),
+            clump => $clump,
         );
         push( @particles, $grid->[$randy][$randx] );
     }
@@ -87,8 +106,11 @@ sub play {
     my $self = shift;
     my $_scr = $self->screen;
     my $sleep_time = $self->sleep_time;
+    my $screen = $self->screen;
+    my $grid  = $screen->grid;
     while( !$_scr->key_pressed ) {
-        $self->draw;
+        $self->move_particles($screen,$grid);
+        $self->draw_grid;
         Time::HiRes::sleep $sleep_time;
         $_moves++;
     }
@@ -117,9 +139,7 @@ my $_move = sub {
 };
 
 sub move_particles {
-    my $self  = shift;
-    my $screen = $self->screen;
-    my $grid  = $screen->grid;
+    my ($self,$screen,$grid) = @_;
     for ( @{ $self->particles } ) {
         my $wantx = $screen->xpos( $_->x + $_->xdir );
         my $wanty = $screen->ypos( $_->y + $_->ydir );
@@ -138,7 +158,12 @@ sub move_particles {
                 $_move->( $_, $wantx, $wanty, $grid );
                 $_->successes_in_direction->{$avoid_dir_string}++;
                 $_->num_successes( $_->num_successes+1 );
-            } elsif( $self->meld ) {
+                print $fh $avoid_dir_string,"\n";
+                if( $self->behavior == 3 ) {
+                    $_->xdir( $avoid_dir->[0] );
+                    $_->ydir( $avoid_dir->[1] );
+                }
+            } elsif( $self->behavior == 2 ) {
                 $_->type( $grid->[$wanty][$wantx]->type );
                 $_->clear_xdir;
                 $_->clear_ydir;
@@ -151,9 +176,6 @@ sub move_particles {
 sub draw {
     my $self = shift;
 #   $self->screen->at(0,0);
-    $self->move_particles;
-#    $self->screen->reset_grid;
-    $self->draw_grid;
 }
 
 1;
