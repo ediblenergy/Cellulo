@@ -20,7 +20,7 @@ option sleep_time => (
 option num_particles => (
     is => 'ro',
     format => 'i',
-    required => 1,
+    default => sub { 500 },
     doc => "number of onscreen particles",
 );
 

@@ -158,9 +158,11 @@ sub avoid_dir {
 #    return [ $_->avoidx, $_->avoidy ];
     my @p = map { $self->p_went_in_direction_x_found_free_path( $_ ) }  @possible_directions;
     my $min = min @p;
+    my @possibles;
     for( my $i = 0; $i < @p; $i++) {
-        return $possible_direction_refs[$i] if $p[$i] == $min;
+        push @possibles, $possible_direction_refs[$i] if $p[$i] == $min;
     }
+    return $possibles[ int( rand( @possibles ) ) ] if @possibles;
     return [0,0];
 }
 

@@ -11,11 +11,11 @@ my $_all = sub {
     return @$_[0];
 };
 
-local $SIG{USR1} = sub {
-    warn 'KAUGHT A USR1';
-    for( @{ $g->particles }) {
-        Dwarn $_->successes_in_direction;
-    }
-    exit };
+my $DESTROY = sub {
+    warn 'DESTROY';
+    warn "\n"x100000;
+    exit;
+};
+
 $g->init;
 $g->play;
