@@ -4,7 +4,6 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Games::Cellulo::Game;
-use Devel::Dwarn;
 my $g = Games::Cellulo::Game->new_with_options;
 
 my $_all = sub {
