@@ -36,14 +36,18 @@ option clump => (
     doc => 'clump instead of avoid',
 );
 
+option ramp => (
+    is => 'ro',
+    doc => 'add particles on collision',
+);
 option behavior => (
     is => 'ro',
     format => 'i',
-    default => sub { 3 },
+    default => sub { int( rand(3) ) + 1 },
     doc => "
         1: go straight, avoid only on collision
         2: meld, on collision switch to new type
-        3: adopt direction of avoid path ( default )
+        3: adopt direction of avoid path
     "
 );
 
@@ -76,29 +80,29 @@ sub randy {
 
 }
 
+sub maybe_add_particle {
+    my $self = shift;
+    my $randy = $self->randy;
+    my $randx = $self->randx;
+    my $rows  = $self->screen->rows;
+    my $cols  = $self->screen->cols;
+    my $grid  = $self->screen->grid;
+    my $clump = $self->clump;
+    return if $grid->[$randy][$randx];
+    $grid->[$randy][$randx] = Games::Cellulo::Game::Particle->new(
+        rows  => $rows,
+        cols  => $cols,
+        x     => $randx,
+        y     => $randy,
+        type  => int( rand(4) + 1 ),
+        clump => $clump,
+    );
+    push( @{ $self->particles }, $grid->[$randy][$randx] );
+}
 sub init {
     my $self = shift;
-    my $rows = $self->screen->rows;
-    my $cols = $self->screen->cols;
     $self->screen->clrscr;
-    my $grid = $self->screen->grid;
-    my @particles;
-    my $clump = $self->clump;
-    for ( 1 .. $self->num_particles ) {
-        my $randy = $self->randy;
-        my $randx = $self->randx;
-        next if $grid->[$randy][$randx];
-        $grid->[$randy][$randx] = Games::Cellulo::Game::Particle->new(
-            rows => $rows,
-            cols => $cols,
-            x    => $randx,
-            y    => $randy,
-            type => int( rand(4) + 1 ),
-            clump => $clump,
-        );
-        push( @particles, $grid->[$randy][$randx] );
-    }
-    $self->particles( \@particles );
+     $self->maybe_add_particle for ( 1 .. $self->num_particles );
 }
 my $_moves = 0;
 sub moves{ $_moves }
@@ -168,6 +172,8 @@ sub move_particles {
                 $_->clear_xdir;
                 $_->clear_ydir;
                 $_->clear_char;
+            } elsif( $self->ramp ) {
+                $self->maybe_add_particle;
             }
         }
     }
