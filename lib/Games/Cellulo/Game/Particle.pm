@@ -163,7 +163,7 @@ sub avoid_dir {
         push @possibles, $possible_direction_refs[$i] if $p[$i] == $min;
     }
     return $possibles[ int( rand( @possibles ) ) ] if @possibles;
-    return [0,0];
+    return;
 }
 
 1;

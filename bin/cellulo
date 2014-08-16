@@ -19,3 +19,59 @@ my $DESTROY = sub {
 
 $g->init;
 $g->play;
+
+__END__
+
+=head1 NAME
+
+cellulo - Cellulo Automatonata
+
+=head1 SYNOPSIS
+
+    $ cellulo
+
+OR
+
+    $ cellulo --meld
+
+=head1 USAGE
+
+cellulo [-h] [long options...]
+
+    --meld:
+        particles should turn in to each other when stuck
+    
+    --num_particles: Int
+        number of onscreen particles
+    
+    --sleep_time: String
+        time to sleep between frames
+    
+    --usage:
+        show a short help message
+    
+    -h --help:
+        show a help message
+    
+    --man:
+        show the manual
+
+=head1 DESCRIPTION
+
+Cellulo is a visualisation of cellular automata, or at least my interpretation of what that would be.
+
+Basically launch the thing and watch em go ;)
+
+L<https://imgur.com/a/ANHV2>
+
+=head1 AUTHOR
+
+Samuel Kaufman <skaufman@cpan.org>
+
+=head1 LICENSE
+
+Copyright (C) Samuel Kaufman.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+

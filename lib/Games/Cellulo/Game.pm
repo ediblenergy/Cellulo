@@ -126,6 +126,7 @@ sub move_particles {
         }
         else {
             my $avoid_dir = $_->avoid_dir;
+            next unless $avoid_dir;
             my $avoid_dir_string = join ',' => @$avoid_dir;
             $_->num_avoid_tries($_->num_avoid_tries+1);
             $_->tries_in_direction->{$avoid_dir_string}++;
