@@ -21,6 +21,9 @@ has xdir => ( is => 'rw', lazy => 1, builder => 1, clearer => 1 );
 has ydir => ( is => 'rw', lazy => 1, builder => 1, clearer => 1 );
 has char => ( is => 'lazy', clearer => 1 );
 has clump => ( is => 'ro', );
+has grayscale => ( is => 'ro', );
+has rainbow => ( is => 'ro', );
+
 sub _build_xdir {
     for( $_[0]->type ) {
         return -1 if $_ eq R;
@@ -51,6 +54,13 @@ sub _cc {
 
 sub _build_char {
     my $self = shift;
+    my $st = 32;
+    $st = 232 if( $self->grayscale );
+    if ( $self->grayscale || $self->rainbow ) {
+        my $r   = int( rand( 256 - $st ) );
+        my $col = $st + $r;
+        return sprintf "\x1b[48;5;${col}m \x1b[0m", 'o';
+    }
     return _cc( 'blue',   'o' ) if $self->type eq B;
     return _cc( 'red',    'o' ) if $self->type eq R;
     return _cc( 'green',  'o' ) if $self->type eq G;
