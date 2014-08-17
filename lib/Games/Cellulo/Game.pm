@@ -184,7 +184,6 @@ sub move_particles {
                 $_move->( $_, $wantx, $wanty, $grid );
                 $_->successes_in_direction->{$avoid_dir_string}++;
                 $_->num_successes( $_->num_successes+1 );
-                print $fh $avoid_dir_string,"\n";
                 if( $self->behavior == 3 ) {
                     $_->xdir( $avoid_dir->[0] );
                     $_->ydir( $avoid_dir->[1] );
