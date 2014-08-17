@@ -9,7 +9,6 @@ use Games::Cellulo::Game::Particle;
 use Moo;
 use MooX::Options;
 
-open( my $fh, ">", "$ENV{HOME}/cellulo.log" ) or die "$@ $!";
 has screen => ( is => 'lazy', handles => [qw/ grid /] );
 
 option sleep_time => (
